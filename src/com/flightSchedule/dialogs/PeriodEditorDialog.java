@@ -35,6 +35,7 @@ import org.eclipse.ui.actions.ActionFactory.IWorkbenchAction;
 
 import com.flightSchedule.baseObjects.Employee;
 import com.flightSchedule.baseObjects.Period;
+import com.flightSchedule.baseObjects.Role;
 import com.flightSchedule.core.SQLServerEmployees;
 import com.flightSchedule.core.SQLServerFlights;
 import com.flightSchedule.dialogs.EmployeeEditorDialog.AddEditDialog;
@@ -43,6 +44,9 @@ import com.flightSchedule.provider.label.EmployeeLabelProvider;
 import com.flightSchedule.provider.label.PeriodLabelProvider;
 import com.flightSchedule.views.FlightScheduleDetailView;
 import com.flightSchedule.views.FlightScheduleDetailView.REFRESH_TYPE;
+
+import flightschedule.Application;
+
 import com.flightSchedule.views.IListViewer;
 
 
@@ -468,7 +472,11 @@ public class PeriodEditorDialog extends BaseEditorDialog<Period, PeriodList> {
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		if(Application.LOGGED_IN_EMPLOYEE.getRole().getId() >= Role.EDIT_ALL.getId()){
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	@Override

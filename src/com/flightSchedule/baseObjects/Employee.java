@@ -42,6 +42,7 @@ public class Employee extends BaseObject {
 	private Type type;
 	private Rank rank;
 	private boolean fullTime;
+	private Role role;
 	public Employee(){
 		super();
 	}
@@ -49,13 +50,14 @@ public class Employee extends BaseObject {
 		super();
 		this.id = id;
 	}
-	public Employee(String lastName, String firstName, Type type, Rank rank, boolean fullTime){
+	public Employee(String lastName, String firstName, Type type, Rank rank, boolean fullTime, Role role){
 		super();
 		this.lastName = lastName;
 		this.firstName = firstName;
 		this.type = type;
 		this.rank = rank;
 		this.fullTime = fullTime;
+		this.role = role;
 	}
 	public Employee(BigInteger id, String lastName, String firstName){
 		super();
@@ -108,10 +110,19 @@ public class Employee extends BaseObject {
 		else
 			return firstName.substring(0, 1) + lastName.substring(0, 1);
 	}
+	public String getSalt(){
+		return getInitials();
+	}
 	public BigInteger getId() {
 		return id;
 	}
 	public void setId(BigInteger id) {
 		this.id = id;
+	}
+	public Role getRole() {
+		return role;
+	}
+	public void setRole(Role role) {
+		this.role = role;
 	}
 }

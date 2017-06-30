@@ -5,11 +5,16 @@ import java.util.List;
 
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.window.Window;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.application.ActionBarAdvisor;
 import org.eclipse.ui.application.IActionBarConfigurer;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
+
+import com.flightSchedule.dialogs.LoginDialog;
 
 public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 
@@ -31,6 +36,16 @@ public class ApplicationWorkbenchWindowAdvisor extends WorkbenchWindowAdvisor {
 //		configurer.setShowCoolBar(true);
 		configurer.setShowStatusLine(false);
 //		configurer.setShowMenuBar(false);
+	}
+	
+	@Override
+	public void postWindowCreate() {
+		super.postWindowCreate();
+        final Shell shell = new Shell(SWT.TOOL|SWT.NO_TRIM);
+		LoginDialog login = new LoginDialog(shell);
+		if(login.open() != Window.OK)
+			System.exit(-1);
+		
 	}
 	
 	@Override

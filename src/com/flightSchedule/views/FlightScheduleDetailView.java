@@ -51,9 +51,12 @@ import org.eclipse.ui.part.ViewPart;
 import com.flightSchedule.actions.RemoveFlightAction;
 import com.flightSchedule.baseObjects.Aircraft;
 import com.flightSchedule.baseObjects.Flight;
+import com.flightSchedule.baseObjects.Role;
 import com.flightSchedule.core.SQLServerAircraft;
 import com.flightSchedule.core.SQLServerEmployees;
 import com.flightSchedule.provider.label.FlightLabelProvider;
+
+import flightschedule.Application;
 
 public class FlightScheduleDetailView extends ViewPart implements IPropertyChangeListener, Printable {
 	public static final String ID = "com.flightSchedule.views.FlightScheduleDetailView";
@@ -440,22 +443,26 @@ public class FlightScheduleDetailView extends ViewPart implements IPropertyChang
 	}
 	
 	public boolean canModify(Flight flight, String property){
-		switch(property){
-			case WORKSCHEDULE_COLUMN:
-			case ENTEREDBY_COLUMN:
-			case CREATED_DATE_COLUMN:
-				return false;
-			case PC_COLUMN:
-				if(flight != null){
-					if(flight.getPC() != null && flight.getPC().isFullTime()){
-						return false;
-					}else
+		if(Application.LOGGED_IN_EMPLOYEE.getRole().getId() >= Role.EDIT_SCHEDULE.getId()){
+			switch(property){
+				case WORKSCHEDULE_COLUMN:
+				case ENTEREDBY_COLUMN:
+				case CREATED_DATE_COLUMN:
+					return false;
+				case PC_COLUMN:
+					if(flight != null){
+						if(flight.getPC() != null && flight.getPC().isFullTime()){
+							return false;
+						}else
+							return true;
+					}else{
 						return true;
-				}else{
+					}
+				default:
 					return true;
-				}
-			default:
-				return true;
+			}
+		}else{
+			return false;
 		}
 	}
 	public boolean canModify(int columnNumber){

@@ -29,6 +29,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
     private IWorkbenchAction aboutAction;
     private IWorkbenchAction newWindowAction;
     private IWorkbenchAction configAction;
+    private IWorkbenchAction changePasswordAction;
     private IWorkbenchAction viewPeriodsAction;
     private IWorkbenchAction viewEmployeesAction;
     private IWorkbenchAction openFlightSchedDetailAction;
@@ -65,6 +66,9 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         configAction = new ConfigurationAction("Configure", window);
         register(configAction);
         
+        changePasswordAction = new ChangePasswordDialog(window.getShell());
+        register(changePasswordAction);
+        
         openFlightSchedDetailAction = new FlightScheduleDetailAction();
         register(openFlightSchedDetailAction);
         
@@ -99,6 +103,7 @@ public class ApplicationActionBarAdvisor extends ActionBarAdvisor {
         
         // File
         fileMenu.add(configAction);
+        fileMenu.add(changePasswordAction);
         fileMenu.add(new Separator());
         fileMenu.add(printFSDetailAction);
         fileMenu.add(new Separator());

@@ -5,6 +5,7 @@ package com.flightSchedule.dialogs;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.jface.dialogs.Dialog;
@@ -25,6 +26,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
@@ -36,6 +38,7 @@ import com.flightSchedule.baseObjects.Employee;
 import com.flightSchedule.baseObjects.Period;
 import com.flightSchedule.baseObjects.Employee.Type;
 import com.flightSchedule.baseObjects.Rank;
+import com.flightSchedule.baseObjects.Role;
 import com.flightSchedule.core.SQLServerEmployees;
 import com.flightSchedule.core.SQLServerEmployees.MOVE_DIRECTION;
 import com.flightSchedule.core.SQLServerFlights;
@@ -43,6 +46,8 @@ import com.flightSchedule.provider.label.EmployeeLabelProvider;
 import com.flightSchedule.views.FlightScheduleDetailView;
 import com.flightSchedule.views.IListViewer;
 import com.flightSchedule.views.FlightScheduleDetailView.REFRESH_TYPE;
+
+import flightschedule.Application;
 
 /**
  * Dialog to add/edit/remove employees in the DB
@@ -57,6 +62,7 @@ public class EmployeeEditorDialog extends BaseEditorDialog<Employee, EmployeeLis
 	private static final int TABLE_HEIGHT = 450;
 	private String[] ranks;
 	private String[] types;
+	private String[] roles;
 	
 
 	public EmployeeEditorDialog(Shell parentShell) {
@@ -64,6 +70,7 @@ public class EmployeeEditorDialog extends BaseEditorDialog<Employee, EmployeeLis
 		empList = new EmployeeList();
 		getRank();
 		getTypes();
+		getRoles();
 		setList(empList);
 		setListeners(
 			//add listener
@@ -211,6 +218,12 @@ public class EmployeeEditorDialog extends BaseEditorDialog<Employee, EmployeeLis
 		setMessage("View or change employees for flight scheduling");
 	}
 
+	/**
+	 * Used to determine if add or edit options should be displayed
+	 * 
+	 * @author andrew.j.jarosinski
+	 *
+	 */
 	public enum DIALOG_TYPE{
 		ADD,
 		EDIT
@@ -221,12 +234,14 @@ public class EmployeeEditorDialog extends BaseEditorDialog<Employee, EmployeeLis
 	 * @author andrew.j.jarosinski
 	 *
 	 */
-	class AddEditDialog extends Dialog{
+	class AddEditDialog extends Dialog implements Listener{
 		private Text firstNameTxt;
 		private Text lastNameTxt;
 		private Combo rankCmbo;
 		private Combo typeCmbo;
+		private Combo roleCmbo;
 		private Button ftBtn;
+		private Button resetPassword;
 		private DIALOG_TYPE diagType;
 		private Employee givenEmployee;
 
@@ -271,6 +286,21 @@ public class EmployeeEditorDialog extends BaseEditorDialog<Employee, EmployeeLis
 			
 			ftBtn = new Button(container, SWT.CHECK);
 			ftBtn.setText("Full-time");
+			ftBtn.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, false, true, 2, 1));
+
+			Label roleLbl = new Label(container, SWT.NONE);
+			roleLbl.setText("Role: ");
+			roleLbl.setLayoutData(new GridData(SWT.LEAD, SWT.CENTER, false, true, 1, 1));
+			roleCmbo = new Combo(container, SWT.DROP_DOWN);
+			roleCmbo.setLayoutData(new GridData(SWT.LEAD, SWT.FILL, false, true, 5, 1));
+			roleCmbo.setItems(roles);
+			
+			if(diagType.equals(DIALOG_TYPE.EDIT)){
+				resetPassword = new Button(container, SWT.PUSH);
+				resetPassword.setText("Reset Password");
+				resetPassword.addListener(SWT.Selection, this);
+
+			}
 			
 			return (Composite) super.createContents(parent);
 		}
@@ -280,12 +310,15 @@ public class EmployeeEditorDialog extends BaseEditorDialog<Employee, EmployeeLis
 			Type type = Employee.Type.valueOf(typeCmbo.getText().toUpperCase());
 			Rank rank = Rank.valueOf(rankCmbo.getText().toUpperCase());
 			SQLServerEmployees server = new SQLServerEmployees();
-			Employee toAdd = new Employee(lastNameTxt.getText(), firstNameTxt.getText(), type, rank, ftBtn.getSelection());
+			Employee toAdd = new Employee(lastNameTxt.getText(), firstNameTxt.getText(), type, rank, ftBtn.getSelection(),
+					Role.findEnum(roleCmbo.getText()));
+			toAdd.setSequence(givenEmployee.getSequence());
 			
 			//TODO validate entered data, pretty much that there is some value there
 			if(diagType.equals(DIALOG_TYPE.ADD)){
 				boolean result = server.addEmployee(toAdd);
 				if(result){
+					MessageDialog.openInformation(getParentShell(), "User Added", "User was added where the password is their last name");
 					IListViewer<Employee> content = (IListViewer<Employee>) viewer.getContentProvider();
 					empList.refresh();
 					content.addObject(toAdd);
@@ -322,6 +355,25 @@ public class EmployeeEditorDialog extends BaseEditorDialog<Employee, EmployeeLis
 			
 			if(emp.isFullTime())
 				ftBtn.setSelection(true);
+			if(emp.getRole() != null)
+				roleCmbo.setText(emp.getRole().getRoleName());
+		}
+
+		@Override
+		public void handleEvent(Event event) {
+	          switch (event.type) {
+	          case SWT.Selection:
+		            SQLServerEmployees emps = new SQLServerEmployees();
+		            if(emps.resetPassword(givenEmployee)){
+		            	//success
+		            	MessageDialog.openInformation(this.getShell(), "Password Reset", "Password was reset to the last name");
+		            }else{
+		            	//failure
+		            	MessageDialog.openError(this.getShell(), "Password Reset Failed", "Password was unable to be reset");
+		            }
+		            break;
+	          }
+			
 		}
 
 		
@@ -345,6 +397,14 @@ public class EmployeeEditorDialog extends BaseEditorDialog<Employee, EmployeeLis
 		}
 		
 		this.types = types.toArray(new String[]{});
+	}
+	
+	private void getRoles(){
+		List<String> roles = new ArrayList<String>();
+		for(Role role : Role.values()){
+			roles.add(role.getRoleName());
+		}
+		this.roles = roles.toArray(new String[]{});
 	}
 	
 	@Override
@@ -429,7 +489,11 @@ public class EmployeeEditorDialog extends BaseEditorDialog<Employee, EmployeeLis
 
 	@Override
 	public boolean isEnabled() {
-		return true;
+		if(Application.LOGGED_IN_EMPLOYEE.getRole().getId() >= Role.EDIT_ALL.getId()){
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	@Override
