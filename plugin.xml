@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="flightschedule.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="%perspective.name"
+            class="flightschedule.Perspective"
+            id="FlightSchedule.perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            class="flightschedule.View"
+            id="FlightSchedule.view"
+            name="%view.name">
+      </view>
+      <view
+            class="com.flightSchedule.views.FlightScheduleDetailView"
+            id="com.flightSchedule.views.FlightScheduleDetailView"
+            name="%flightScheduleDetailView.name"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="*">
+         <view
+               standalone="true"
+               minimized="false"
+               relative="org.eclipse.ui.editorss"
+               relationship="stack"
+               id="FlightSchedule.view">
+         </view>
+         <view
+               id="com.flightSchedule.views.FlightScheduleDetailView"
+               minimized="false"
+               relationship="stack"
+               relative="org.eclipse.ui.editorss"
+               standalone="true">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         id="product"
+         point="org.eclipse.core.runtime.products">
+      <product
+            application="FlightSchedule.application"
+            name="%product.name">
+         <property
+               name="windowImages"
+               value="icons/eclipse16.png,icons/eclipse32.png,icons/eclipse48.png,icons/eclipse64.png, icons/eclipse128.png,icons/eclipse256.png">
+         </property>
+         <property
+               name="appName"
+               value="%product.name">
+         </property>
+      </product>
+   </extension>
+
+</plugin>

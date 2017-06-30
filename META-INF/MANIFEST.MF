@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: %Bundle-Name
+Bundle-SymbolicName: FlightSchedule;singleton:=true
+Bundle-Version: 1.0.0.qualifier
+Require-Bundle: org.eclipse.core.runtime,
+ org.eclipse.ui,
+ org.eclipse.core.resources;bundle-version="3.11.1"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ClassPath: ./, src/,
+ bin/,
+ icons/,
+ META-INF/,
+ res/sqljdbc42.jar
+Export-Package: com.microsoft.sqlserver.jdbc,
+ microsoft.sql
