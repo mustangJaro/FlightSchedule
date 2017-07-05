@@ -3,6 +3,11 @@
 
 <product name="%product.name" id="FlightSchedule.product" application="FlightSchedule.application" version="1.0.0.qualifier" useFeatures="false" includeLaunchers="true">
 
+   <aboutInfo>
+      <text>
+         Developed by Andrew Jarosinski of the WIARNG.  Support for this product can be considered limited and is not guaranteed.  Use at your own risk.
+      </text>
+   </aboutInfo>
 
    <configIni use="default">
    </configIni>
@@ -14,7 +19,6 @@
 
    <windowImages i16="icons/eclipse16.png" i32="icons/eclipse32.png" i48="icons/eclipse48.png" i64="icons/eclipse64.png" i128=" icons/eclipse128.png" i256="icons/eclipse256.png"/>
 
-
    <launcher>
       <solaris/>
       <win useIco="false">
@@ -25,7 +29,6 @@
 
    <vm>
    </vm>
-
 
    <plugins>
       <plugin id="FlightSchedule"/>
